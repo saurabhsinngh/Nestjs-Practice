@@ -2,6 +2,7 @@ import { MiddlewareConsumer, Module, NestMiddleware, NestModule, RequestMethod }
 import { UserController } from './controllers/user/user.controller';
 import { UsersService } from './services/users/users.service';
 import { AuthMiddleware } from './middlewares/auth/auth.middleware';
+import { OtherAuthMiddleware } from './middlewares/other-auth/other-auth.middleware';
 
 @Module({
   controllers: [UserController],
@@ -13,6 +14,19 @@ export class UsersModule implements NestModule {
 
     // Added the customise middlwware. Only middleware applies on these routes.
     consumer.apply(AuthMiddleware).forRoutes(
+      {
+      path: 'user',
+      method: RequestMethod.GET
+      },
+      {
+      path: 'user/data',
+      method: RequestMethod.GET
+      },
+      {
+      path: 'user/create',
+      method: RequestMethod.POST
+      }
+    ).apply(OtherAuthMiddleware).forRoutes(
       {
       path: 'user',
       method: RequestMethod.GET
