@@ -35,7 +35,9 @@ export class UserController {
     @Post('create')
     createUserData(@Req() request:Request, @Res() response:Response){
         console.log(request.body);
-        response.send('User Created Successfully');
+        console.log(isNaN(request.body.age));
+        console.log(typeof(request.body.age));
+        response.send({status: true, message:'User Created Successfully'});
     }
 
     @Post('create') // Here createUserDto is the function name
