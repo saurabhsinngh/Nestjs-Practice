@@ -1,6 +1,8 @@
-import { Body, Controller, Get, HttpException, HttpStatus, Param, ParseBoolPipe, ParseIntPipe, Post, Put, Query, Req, Res, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Get, HttpException, HttpStatus, Param, ParseBoolPipe, ParseIntPipe, Post, Put, Query, Req, Res, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { createUserDto } from 'src/users/dto/crateUser.dto';
+import { AuthGuard } from 'src/users/guards/auth/auth.guard';
+import { ValidationCreateUserPipe } from 'src/users/pipes/validation-create-user/validation-create-user.pipe';
 import { UsersService } from 'src/users/services/users/users.service';
 
 @Controller('user')
@@ -8,6 +10,7 @@ export class UserController {
     constructor(private userService: UsersService){}
 
     @Get() // Decorators
+    @UseGuards(AuthGuard) // Guards are used when suppose any user fails to authenticate & authorize not allow rach end point for prevent that use access to end point use guard.
     getBasicUserInfo() {
         return { 'user': 'Saurabh Singh', 'email': 'saurabh.singh.tma@gmail.com' };
     }
@@ -32,7 +35,7 @@ export class UserController {
         return user;
     }
 
-    @Post('create')
+    @Post('createNewUser')
     createUserData(@Req() request:Request, @Res() response:Response){
         console.log(request.body);
         console.log(isNaN(request.body.age));
@@ -40,10 +43,11 @@ export class UserController {
         response.send({status: true, message:'User Created Successfully'});
     }
 
-    @Post('create') // Here createUserDto is the function name
-    createUserInfo(@Body() payload: createUserDto){
+    @Post('createUserData') // Here createUserDto is the function name
+    @UsePipes(new ValidationPipe()) // Payload validations are added.
+    createUserInfo(@Body(ValidationCreateUserPipe) payload: createUserDto){
         console.log(payload);
-        return { 'User': 'Saurabh Singh'}
+        return { 'user': 'Saurabh Singh', 'email': 'saurabh.singh.tma@gmail.com' };
     }
 
     @Get(':id/:userId/:dataId')
@@ -71,8 +75,8 @@ export class UserController {
     }
 
     @Post('create')
-    @UsePipes(new ValidationPipe) // Payload validations are added.
-    createUser(@Body() usercreate: createUserDto){
+    @UsePipes(new ValidationPipe()) // Payload validations are added.
+    createUser(@Body(ValidationCreateUserPipe) usercreate: createUserDto){
         console.log(usercreate);
         return {usercreate};
     }
